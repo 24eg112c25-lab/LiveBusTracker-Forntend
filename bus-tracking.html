@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passenger Live Bus Tracking | Anurag University, Hyderabad</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+</head>
+<body style="overflow: hidden;">
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+      </svg>
+      <span>Anurag Transit Tracker</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="bus-tracking.html" class="nav-link active">Passenger Tracking</a></li>
+      <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+    </ul>
+
+    <div id="navbar-sim-status" class="nav-status status-online">
+      <span class="status-pulse"></span> Sim Running
+    </div>
+  </header>
+
+  <!-- Live Tracking Split Layout -->
+  <div class="tracking-layout">
+    
+    <!-- Sidebar Controls & Info Panel -->
+    <aside class="sidebar-panel">
+      <div class="sidebar-header">
+        <h2><span>📍</span> Anurag University Navigator</h2>
+        <small style="color: var(--text-muted); display: block; margin-top: 2px;">Venkatapur, Ghatkesar, Hyderabad - 500088</small>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Route & Bus Selector -->
+        <div class="form-group">
+          <label class="form-label" for="route-select">Select Transit Route</label>
+          <select id="route-select" class="form-select">
+            <option value="">-- All Active Routes --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bus-select">Select Bus to Track</label>
+          <select id="bus-select" class="form-select">
+            <option value="">-- Select a Bus to Track --</option>
+          </select>
+        </div>
+
+        <!-- Live Bus Status Card (Dynamic) -->
+        <div id="active-bus-card" class="bus-card" style="display: none;">
+          <!-- Rendered dynamically by tracking.js -->
+        </div>
+
+        <!-- Stop Progress & ETA Timeline -->
+        <div class="form-group">
+          <label class="form-label">Route Stops & Live ETAs</label>
+          <div id="route-timeline" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Select a bus to view real-time arrival estimates for all route stops.</p>
+          </div>
+        </div>
+
+        <!-- Route Finder Tool -->
+        <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 1rem;">
+          <label class="form-label">🔍 Find Route Between Stops</label>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+            <select id="search-from-stop" class="form-select">
+              <option value="">Select Origin Stop</option>
+            </select>
+            <select id="search-to-stop" class="form-select">
+              <option value="">Select Destination Stop</option>
+            </select>
+            <button id="btn-search-routes" class="btn btn-primary btn-sm" style="width: 100%;">Search Routes</button>
+          </div>
+          <div id="search-results"></div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Main Interactive Map Area -->
+    <main class="map-container">
+      
+      <!-- Interactive Search Box for Stops & Destinations -->
+      <div class="map-search-container">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="map-search-input" class="map-search-input" placeholder="Search stops or Hyderabad destinations (e.g. Charminar, Anurag)..." autocomplete="off">
+          <button id="btn-clear-search" class="btn-clear-search" style="display: none;" title="Clear">&times;</button>
+          <button id="btn-exec-search" class="btn btn-sm btn-primary">Find</button>
+        </div>
+        <div id="search-suggestions" class="search-suggestions" style="display: none;"></div>
+      </div>
+
+      <!-- Quick Destination Shortcut Pills -->
+      <div class="quick-destination-bar">
+        <button class="quick-pill pill-anurag" data-dest="dest-anurag">🎓 Anurag University</button>
+        <button class="quick-pill" data-dest="dest-charminar">🏛️ Charminar</button>
+        <button class="quick-pill" data-dest="dest-hussain-sagar">🌊 Hussain Sagar</button>
+        <button class="quick-pill" data-dest="dest-secunderabad">🚉 Secunderabad Stn</button>
+        <button class="quick-pill" data-dest="dest-uppal">🚇 Uppal Metro</button>
+        <button class="quick-pill" data-dest="dest-ghatkesar">🚏 Ghatkesar</button>
+      </div>
+
+      <!-- Leaflet Map Container -->
+      <div id="map"></div>
+
+      <!-- Floating Map Control Overlays -->
+      <div class="map-controls-overlay">
+        <button id="btn-focus-anurag" class="map-control-btn" title="Center map on Anurag University campus">
+          <span>🎓 Anurag Univ</span>
+        </button>
+        <button id="btn-follow-bus" class="map-control-btn" title="Toggle automatic map following">
+          <span>🎯 Follow Bus</span>
+        </button>
+        <button id="btn-fit-bounds" class="map-control-btn" title="Zoom to fit all stops & buses">
+          <span>🔍 Fit Overview</span>
+        </button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Leaflet JS CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Application JS Modules -->
+  <script src="js/api.js"></script>
+  <script src="js/tracking.js"></script>
+  <script src="js/simulator.js"></script>
+</body>
+</html>

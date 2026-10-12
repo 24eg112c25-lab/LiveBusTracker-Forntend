@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Simulation Control | Real-Time Bus Tracking</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+      </svg>
+      <span>BusTracker Admin</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="bus-tracking.html" class="nav-link">Passenger Tracking</a></li>
+      <li><a href="admin.html" class="nav-link active">Admin Portal</a></li>
+    </ul>
+
+    <div id="navbar-sim-status" class="nav-status status-online">
+      <span class="status-pulse"></span> Sim Running
+    </div>
+  </header>
+
+  <main class="admin-container">
+
+    <div class="admin-header">
+      <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800;">Administration & Fleet Management</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Manage campus transit vehicles, routes, bus stops, and control the GPS movement simulation engine.</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-target="tab-buses">🚌 Fleet Buses</button>
+      <button class="tab-btn" data-target="tab-routes">🛣️ Transit Routes</button>
+      <button class="tab-btn" data-target="tab-stops">🚏 Bus Stops</button>
+      <button class="tab-btn" data-target="tab-simulator">⚡ GPS Simulator</button>
+    </div>
+
+    <!-- TAB 1: FLEET BUSES -->
+    <section id="tab-buses" class="tab-content data-card">
+      <div class="data-card-header">
+        <h3 class="data-card-title">Registered Fleet Buses</h3>
+        <button class="btn btn-primary btn-sm" onclick="openAddBusModal()">+ Register New Bus</button>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Bus / Reg #</th>
+              <th>Driver Info</th>
+              <th>Assigned Route</th>
+              <th>Status</th>
+              <th>Current Speed</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="buses-tbody">
+            <!-- Populated via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: ROUTES -->
+    <section id="tab-routes" class="tab-content data-card" style="display: none;">
+      <div class="data-card-header">
+        <h3 class="data-card-title">Campus Transit Routes</h3>
+        <button class="btn btn-primary btn-sm" onclick="openAddRouteModal()">+ Create New Route</button>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Route #</th>
+              <th>Route Name</th>
+              <th>Origin ➔ Destination</th>
+              <th>Distance & Stops</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="routes-tbody">
+            <!-- Populated via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: STOPS -->
+    <section id="tab-stops" class="tab-content data-card" style="display: none;">
+      <div class="data-card-header">
+        <h3 class="data-card-title">Bus Stops & Stations</h3>
+        <button class="btn btn-primary btn-sm" onclick="openAddStopModal()">+ Add New Stop</button>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Stop Name</th>
+              <th>Landmark / Description</th>
+              <th>GPS Coordinates (Lat, Lng)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stops-tbody">
+            <!-- Populated via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: GPS SIMULATOR CENTER -->
+    <section id="tab-simulator" class="tab-content" style="display: none;">
+      <div class="sim-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="font-size: 1.3rem; font-weight: 700;">GPS Movement Simulator Center</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Controls real-time mathematical waypoint interpolation and stop boarding dwell times without real GPS hardware.</p>
+          </div>
+          <span id="sim-status-badge" class="badge badge-in-transit">RUNNING</span>
+        </div>
+
+        <div class="sim-grid">
+          <div class="sim-card">
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Active Simulated Buses</span>
+            <span id="sim-active-buses" style="font-size: 1.75rem; font-weight: 800; color: var(--primary);">--</span>
+            <small style="color: #64748b;">Buses running on active routes</small>
+          </div>
+
+          <div class="sim-card">
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Total Engine Ticks</span>
+            <span id="sim-tick-count" style="font-size: 1.75rem; font-weight: 800; color: #10b981;">--</span>
+            <small style="color: #64748b;">Interval: 2000 ms per step</small>
+          </div>
+
+          <div class="sim-card">
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Simulation Speed</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span id="sim-speed-val" style="font-size: 1.75rem; font-weight: 800; color: #d97706;">2.0x</span>
+            </div>
+            <input type="range" id="sim-speed-range" min="0.5" max="10.0" step="0.5" value="2.0" style="width: 100%; cursor: pointer;">
+            <div style="display: flex; gap: 0.25rem;">
+              <button class="btn btn-sm btn-outline btn-speed-preset" data-speed="1.0">1x</button>
+              <button class="btn btn-sm btn-outline btn-speed-preset" data-speed="2.0">2x</button>
+              <button class="btn btn-sm btn-outline btn-speed-preset" data-speed="5.0">5x</button>
+              <button class="btn btn-sm btn-outline btn-speed-preset" data-speed="10.0">10x</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-actions">
+          <button id="btn-sim-start" class="btn btn-success">▶ Start / Resume Simulation</button>
+          <button id="btn-sim-pause" class="btn btn-outline">⏸ Pause Simulation</button>
+          <button id="btn-sim-reset" class="btn btn-danger">↺ Reset All to Route Start</button>
+        </div>
+      </div>
+
+      <!-- Live Teleportation Demonstration Tool -->
+      <div class="sim-panel">
+        <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;">Demo Teleportation Tool (Viva Presentation)</h4>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Instantly advance or teleport a bus to any stop along its route to demonstrate arrival triggers, dwell timers, and ETA updates.</p>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <select id="sim-teleport-bus" class="form-select" style="max-width: 250px;">
+            <option value="">Select Bus</option>
+          </select>
+          <select id="sim-teleport-stop" class="form-select" style="max-width: 250px;">
+            <option value="">Select Target Stop</option>
+          </select>
+          <button id="btn-sim-teleport" class="btn btn-primary">🚀 Teleport to Stop</button>
+        </div>
+      </div>
+
+      <!-- Simulator Activity Log -->
+      <div class="sim-panel">
+        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;">Simulator Event Activity Log</h4>
+        <div id="sim-logs" style="background: var(--bg-alt); padding: 1rem; border-radius: 8px; max-height: 160px; overflow-y: auto; font-family: monospace;">
+          <div style="color: #64748b;">Simulator ready and awaiting events...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL 1: ADD/EDIT BUS
+       ========================================================================== -->
+  <div id="bus-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="bus-modal-title" class="modal-title">Register New Bus</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="bus-form">
+        <div class="modal-body">
+          <input type="hidden" id="bus-id">
+          
+          <div class="form-group">
+            <label class="form-label">Bus Identifier (e.g. BUS-05)</label>
+            <input type="text" id="bus-number" class="form-input" required placeholder="BUS-05">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Registration / Number Plate</label>
+            <input type="text" id="bus-reg-number" class="form-input" required placeholder="KA-04-E-5555">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Passenger Capacity</label>
+            <input type="number" id="bus-capacity" class="form-input" value="40" min="10" max="100">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Driver Name</label>
+            <input type="text" id="bus-driver-name" class="form-input" placeholder="Driver full name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Driver Phone Number</label>
+            <input type="text" id="bus-driver-phone" class="form-input" placeholder="+91 98765 43210">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assign Route</label>
+            <select id="bus-route-id" class="form-select">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Initial Status</label>
+            <select id="bus-status" class="form-select">
+              <option value="IN_TRANSIT">IN TRANSIT (Active Sim)</option>
+              <option value="IDLE" selected>IDLE</option>
+              <option value="OUT_OF_SERVICE">OUT OF SERVICE</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Bus</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: ADD/EDIT ROUTE
+       ========================================================================== -->
+  <div id="route-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="route-modal-title" class="modal-title">Create New Route</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="route-form">
+        <div class="modal-body">
+          <input type="hidden" id="route-id">
+
+          <div class="form-group">
+            <label class="form-label">Route Code (e.g. R-104)</label>
+            <input type="text" id="route-number" class="form-input" required placeholder="R-104">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Route Title</label>
+            <input type="text" id="route-name" class="form-input" required placeholder="Library - Hostel Direct">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Origin Location</label>
+            <input type="text" id="route-origin" class="form-input" required placeholder="Campus Main Gate">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Destination Location</label>
+            <input type="text" id="route-destination" class="form-input" required placeholder="Research Block">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Route</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: MANAGE ROUTE STOPS (Sub-Management)
+       ========================================================================== -->
+  <div id="manage-route-stops-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="manage-route-stops-title" class="modal-title">Manage Route Stops</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 0.5rem;">
+          <select id="route-add-stop-select" class="form-select">
+            <!-- Populated via admin.js -->
+          </select>
+          <button type="button" class="btn btn-primary btn-sm" onclick="addStopToCurrentRoute()">+ Add Stop</button>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <label class="form-label" style="margin-bottom: 0.5rem; display: block;">Sequential Route Stops</label>
+          <div id="route-stops-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline btn-modal-cancel">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: ADD/EDIT STOP with LEAFLET MAP COORDINATE PICKER
+       ========================================================================== -->
+  <div id="stop-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 id="stop-modal-title" class="modal-title">Add New Bus Stop</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="stop-form">
+        <div class="modal-body">
+          <input type="hidden" id="stop-id">
+
+          <div class="form-group">
+            <label class="form-label">Stop Name</label>
+            <input type="text" id="stop-name" class="form-input" required placeholder="Science Block Bus Bay">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Landmark / Description</label>
+            <input type="text" id="stop-landmark" class="form-input" placeholder="Opposite Chemistry Department">
+          </div>
+
+          <!-- Coordinate Inputs -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">Latitude</label>
+              <input type="number" id="stop-latitude" step="0.000001" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Longitude</label>
+              <input type="number" id="stop-longitude" step="0.000001" class="form-input" required>
+            </div>
+          </div>
+
+          <!-- Interactive Leaflet Map Picker -->
+          <div class="form-group">
+            <label class="form-label">📍 Click on map to pick GPS coordinates:</label>
+            <div id="picker-map"></div>
+            <small style="color: var(--text-muted);">Click anywhere on the map or drag the pin to set the exact latitude & longitude.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Stop</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p><b>Real-Time Bus Tracking System</b> • Admin Management Console</p>
+  </footer>
+
+  <!-- Leaflet JS CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Application JS Modules -->
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/simulator.js"></script>
+</body>
+</html>

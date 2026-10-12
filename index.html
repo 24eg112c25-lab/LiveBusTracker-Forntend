@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Bus Tracking System | College Project</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚌</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+      </svg>
+      <span>BusTracker</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link active">Home</a></li>
+      <li><a href="bus-tracking.html" class="nav-link">Passenger Tracking</a></li>
+      <li><a href="admin.html" class="nav-link">Admin Portal</a></li>
+    </ul>
+
+    <div id="navbar-sim-status" class="nav-status status-online">
+      <span class="status-pulse"></span> Sim Running
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-badge">🎓 Anurag University • Venkatapur, Ghatkesar, Hyderabad 500088</div>
+    <h1 class="hero-title">Real-Time Bus Tracking System</h1>
+    <p class="hero-desc">
+      A comprehensive transit monitoring platform for Anurag University connecting to Hyderabad landmarks with live Leaflet OpenStreetMap rendering, automated GPS waypoint interpolation, and fleet management.
+    </p>
+    <div class="hero-actions">
+      <a href="bus-tracking.html" class="btn btn-white">
+        <span>🗺️ Launch Live Passenger Map</span>
+      </a>
+      <a href="admin.html" class="btn btn-outline-white">
+        <span>⚙️ Open Admin Control Center</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Live Statistics Grid -->
+  <section class="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon">🚌</div>
+      <div>
+        <div id="stat-total-buses" class="stat-num">--</div>
+        <div class="stat-label">Total Fleet Buses</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🛣️</div>
+      <div>
+        <div id="stat-total-routes" class="stat-num">--</div>
+        <div class="stat-label">Configured Routes</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🚏</div>
+      <div>
+        <div id="stat-total-stops" class="stat-num">--</div>
+        <div class="stat-label">Campus Bus Stops</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div>
+        <div id="stat-sim-active" class="stat-num">--</div>
+        <div class="stat-label">Simulated Active Buses</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Architecture Features -->
+  <section class="features-container">
+    <div class="section-header">
+      <h2 class="section-title">Core System Capabilities</h2>
+      <p class="section-subtitle">Engineered with high precision for academic demonstration and real-world deployment</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">📍</div>
+        <h3>Interactive Leaflet & OSM Map</h3>
+        <p>Real-time vehicle position tracking on OpenStreetMap with directional orientation arrows, route paths, sequence stop pins, and instant ETA calculations.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">⏱️</div>
+        <h3>Hardware-Free GPS Simulation</h3>
+        <p>Built-in mathematical simulator interpolates smooth bus movements between consecutive route waypoints with realistic dwell times at each stop without needing GPS hardware.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">🛡️</div>
+        <h3>Full Fleet & Route Admin CRUD</h3>
+        <p>Manage buses, routes, and stops effortlessly. Features an interactive click-on-map coordinate picker to place new stops without manual GPS coordinate lookups.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">📐</div>
+        <h3>Haversine Proximity & ETAs</h3>
+        <p>Dynamic calculations of remaining distances and estimated arrival times (ETAs) based on realistic vehicle velocities and stop progression.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">🔍</div>
+        <h3>Transit Route Finder</h3>
+        <p>Search suitable routes between any origin and destination stops across the campus transit network with instant distance breakdowns.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">📦</div>
+        <h3>Single-Artifact Deployment</h3>
+        <p>Self-contained Spring Boot application serving both REST API services and responsive static frontend assets simultaneously from embedded Tomcat.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Stack Breakdown -->
+  <section class="features-container" style="background: #ffffff; padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 4rem;">
+    <div class="section-header" style="margin-bottom: 1.5rem;">
+      <h2 class="section-title" style="font-size: 1.6rem;">Technology Stack</h2>
+      <p class="section-subtitle">Modern, lightweight, and robust enterprise architecture</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: center;">
+      <div style="padding: 1rem; background: var(--bg-alt); border-radius: 10px;">
+        <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Backend</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Java 21 LTS<br/>Spring Boot 3.3.4</p>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-alt); border-radius: 10px;">
+        <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Database & ORM</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">MySQL Server 8.0<br/>Spring Data JPA / Hibernate</p>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-alt); border-radius: 10px;">
+        <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Geospatial Engine</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Leaflet.js v1.9<br/>OpenStreetMap (OSM)</p>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-alt); border-radius: 10px;">
+        <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Frontend</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Vanilla HTML5 / CSS3<br/>Modular ES6 JavaScript</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><b>Real-Time Bus Tracking System</b> • College Major Project • Developed with Spring Boot & MySQL</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Load dynamic homepage counters
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [buses, routes, stops, simStatus] = await Promise.all([
+          API.getBuses(),
+          API.getRoutes(),
+          API.getStops(),
+          API.getSimulationStatus()
+        ]);
+
+        document.getElementById('stat-total-buses').textContent = buses.length;
+        document.getElementById('stat-total-routes').textContent = routes.length;
+        document.getElementById('stat-total-stops').textContent = stops.length;
+        document.getElementById('stat-sim-active').textContent = simStatus.activeBusesCount;
+
+        const navStatus = document.getElementById('navbar-sim-status');
+        if (navStatus) {
+          navStatus.className = simStatus.running ? 'nav-status status-online' : 'nav-status status-paused';
+          navStatus.innerHTML = simStatus.running
+            ? `<span class="status-pulse"></span> Sim Running (${simStatus.speedMultiplier}x)`
+            : '<span class="status-pulse"></span> Sim Paused';
+        }
+      } catch (err) {
+        console.warn('Could not load homepage stats:', err);
+      }
+    });
+  </script>
+</body>
+</html>
